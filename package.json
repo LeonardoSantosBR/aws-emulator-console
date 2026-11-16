@@ -16,7 +16,7 @@
     "@aws-sdk/client-sqs": "^3.883.0",
     "@aws-sdk/client-cloudwatch-logs": "^3.883.0",
     "@aws-sdk/client-secrets-manager": "^3.883.0",
-    "@aws-sdk/client-sns": "^3.883.0",
+    "@aws-sdk/client-sns": "3.1169.0",
     "@smithy/node-http-handler": "^4.2.5",
     "@types/node": "^24.10.1",
     "tsx": "^4.20.6",

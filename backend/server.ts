@@ -1,7 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { extname, join, normalize } from "node:path";
+import { extname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { Agent } from "node:https";
 import { NodeHttpHandler } from "@smithy/node-http-handler";
@@ -281,12 +281,15 @@ async function handleApi(request: IncomingMessage, response: ServerResponse, url
 }
 
 async function serveStatic(response: ServerResponse, pathname: string): Promise<void> {
-  const requested = pathname === "/" ? "/index.html" : pathname;
-  const filePath = normalize(join(root, requested));
-  if (!filePath.startsWith(root)) return sendJson(response, 403, { error: "Forbidden." });
+  const requested = pathname === "/" ? "index.html" : decodeURIComponent(pathname).replace(/^\/+/, "");
+  const filePath = resolve(root, requested);
+  const pathFromRoot = relative(root, filePath);
+  if (isAbsolute(pathFromRoot) || pathFromRoot === ".." || pathFromRoot.startsWith(".." + (process.platform === "win32" ? "\\" : "/"))) {
+    return sendJson(response, 403, { error: "Forbidden." });
+  }
   try {
     const content = await readFile(filePath);
-    const types: Record<string, string> = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css" };
+    const types: Record<string, string> = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png" };
     response.writeHead(200, { "content-type": `${types[extname(filePath)] || "application/octet-stream"}; charset=utf-8` });
     response.end(content);
   } catch {

@@ -11,15 +11,15 @@ const state = {
 
 const $ = (selector) => document.querySelector(selector);
 const serviceMeta = {
-  S3: { label: "Simple Storage", badge: "S3", className: "badge-s3" },
-  DynamoDB: { label: "DynamoDB", badge: "◈", className: "badge-dynamo" },
-  SQS: { label: "Queue Service", badge: "≋", className: "badge-sqs" },
-  SNS: { label: "Notifications", badge: "◉", className: "badge-sns" },
-  EventBridge: { label: "EventBridge", badge: "✦", className: "badge-eventbridge" },
-  CloudWatchLogs: { label: "CloudWatch Logs", badge: "▤", className: "badge-logs" },
-  SecretsManager: { label: "Secrets Manager", badge: "◆", className: "badge-secrets" },
-  EC2: { label: "Elastic Compute Cloud", badge: "▣", className: "badge-ec2" },
-  Lambda: { label: "Lambda", badge: "λ", className: "badge-lambda" },
+  S3: { label: "Simple Storage", icon: "amazon-aws-S3-icon.svg", className: "badge-s3" },
+  DynamoDB: { label: "DynamoDB", icon: "amazon-aws-DynamoDb-icon.svg", className: "badge-dynamo" },
+  SQS: { label: "Queue Service", icon: "amazon-aws-Sqs-icon.svg", className: "badge-sqs" },
+  SNS: { label: "Notifications", icon: "amazon-aws-Sns-icon.svg", className: "badge-sns" },
+  EventBridge: { label: "EventBridge", icon: "amazon-aws-EventBridge-icon.svg", className: "badge-eventbridge" },
+  CloudWatchLogs: { label: "CloudWatch Logs", icon: "amazon-aws-CloudWatch-icon.svg", className: "badge-logs" },
+  SecretsManager: { label: "Secrets Manager", icon: "amazon-aws-SecretsManager.svg", className: "badge-secrets" },
+  EC2: { label: "Elastic Compute Cloud", icon: "amazon-aws-Ec2-icon.svg", className: "badge-ec2" },
+  Lambda: { label: "Lambda", icon: "amazon-aws-Lambda-icon.svg", className: "badge-lambda" },
 };
 
 function save() {
@@ -63,7 +63,7 @@ function resourceCards() {
   return Object.entries(serviceMeta).map(([service, meta]) => {
     const count = state.resources.filter((resource) => resource.service === service).length;
     return `<button class="resource-card" data-service="${service}">
-      <div class="resource-card-top"><span class="service-badge ${meta.className}">${meta.badge}</span><span class="resource-count">${count}</span></div>
+      <div class="resource-card-top"><span class="service-badge ${meta.className}"><img src="assets/${meta.icon}" alt="" /></span><span class="resource-count">${count}</span></div>
       <h3>${meta.label}</h3><p>${service} resources</p>
     </button>`;
   }).join("");
