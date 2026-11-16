@@ -70,6 +70,7 @@
   --error-border: #e7b8bd;
   --error-bg: #fff0f1;
   --error-text: #a62d3c;
+  --black: #070707;
   --green: #168354;
   --green-dark: #d8f0e3;
   --orange: #a95a08;
@@ -189,6 +190,7 @@ button {
   display: flex;
   align-items: center;
   gap: 11px;
+  font-weight: bold;
 }
 
 .nav-item:hover,
@@ -200,7 +202,8 @@ button {
 }
 
 .nav-item.active {
-  color: var(--green);
+  color: var(--black);
+  font-weight: bold;
 }
 
 .nav-item:hover,
