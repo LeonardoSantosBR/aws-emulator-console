@@ -10,6 +10,27 @@ const state = {
 };
 
 const $ = (selector) => document.querySelector(selector);
+const themeToggle = $("#theme-toggle");
+
+function setTheme(theme, persist = true) {
+  const isLight = theme === "light";
+  document.documentElement.dataset.theme = isLight ? "light" : "dark";
+  themeToggle.textContent = `${isLight ? "Dark" : "Light"} mode`;
+  const label = `Switch to ${isLight ? "dark" : "light"} mode`;
+  themeToggle.setAttribute("aria-label", label);
+  themeToggle.title = label;
+  themeToggle.setAttribute("aria-pressed", String(isLight));
+  document.querySelector('meta[name="theme-color"]').content = isLight ? "#f4f7fa" : "#0b0f14";
+  if (persist) {
+    try { localStorage.setItem("emulator-theme", isLight ? "light" : "dark"); } catch {}
+  }
+}
+
+setTheme(document.documentElement.dataset.theme || "dark", false);
+themeToggle.addEventListener("click", () => {
+  setTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light");
+});
+
 const serviceMeta = {
   S3: { label: "Simple Storage", icon: "amazon-aws-S3-icon.svg", className: "badge-s3" },
   DynamoDB: { label: "DynamoDB", icon: "amazon-aws-DynamoDb-icon.svg", className: "badge-dynamo" },

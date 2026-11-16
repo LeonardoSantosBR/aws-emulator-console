@@ -1,112 +1,132 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0b0f14" />
-    <title>Emulator Console</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <aside class="sidebar">
-        <div class="brand">
-          <img class="brand-mark" src="assets/amazon-aws-logo.png" alt="Amazon Web Services" />
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0f14" />
+  <title>Emulator Console</title>
+  <script>
+    try {
+      if (localStorage.getItem("emulator-theme") === "light") document.documentElement.dataset.theme = "light";
+    } catch { }
+  </script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-mark" src="assets/amazon-aws-logo.png" alt="Amazon Web Services" />
+        <div>
+          <strong>emulator</strong>
+          <span>console</span>
+        </div>
+      </div>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">◈</span>Overview</button>
+        <button class="nav-item" data-view="resources"><span class="nav-icon">▦</span>All resources</button>
+        <button class="nav-item" data-view="activity"><span class="nav-icon">◷</span>Activity</button>
+      </nav>
+
+      <div class="workspace-label service-label">SERVICES</div>
+      <nav class="service-nav" aria-label="Services">
+        <button class="service-item" data-service="S3"><img class="service-icon" src="assets/amazon-aws-S3-icon.svg"
+            alt="" />Simple Storage</button>
+        <button class="service-item" data-service="DynamoDB"><img class="service-icon"
+            src="assets/amazon-aws-DynamoDb-icon.svg" alt="" />DynamoDB</button>
+        <button class="service-item" data-service="SQS"><img class="service-icon" src="assets/amazon-aws-Sqs-icon.svg"
+            alt="" />Queue Service</button>
+        <button class="service-item" data-service="SNS"><img class="service-icon" src="assets/amazon-aws-Sns-icon.svg"
+            alt="" />Notifications</button>
+        <button class="service-item" data-service="EventBridge"><img class="service-icon"
+            src="assets/amazon-aws-EventBridge-icon.svg" alt="" />EventBridge</button>
+        <button class="service-item" data-service="CloudWatchLogs"><img class="service-icon"
+            src="assets/amazon-aws-CloudWatch-icon.svg" alt="" />CloudWatch Logs</button>
+        <button class="service-item" data-service="SecretsManager"><img class="service-icon"
+            src="assets/amazon-aws-SecretsManager.svg" alt="" />Secrets Manager</button>
+        <button class="service-item" data-service="EC2"><img class="service-icon" src="assets/amazon-aws-Ec2-icon.svg"
+            alt="" />EC2</button>
+        <button class="service-item" data-service="Lambda"><img class="service-icon"
+            src="assets/amazon-aws-Lambda-icon.svg" alt="" />Lambda</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-chip"><span class="avatar">L</span><span>Leonardo</span><span class="more">•••</span></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumbs"><span>local-default</span><span>/</span><strong
+            id="breadcrumb-current">Overview</strong></div>
+        <div class="topbar-actions">
+          <div class="connection-pill"><span class="status-dot"></span><span id="connection-label">Connected</span>
+          </div>
+          <button class="icon-button" id="refresh-button" title="Refresh resources">↻</button>
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light mode"
+            title="Switch to light mode">Light mode</button>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <section class="page-heading">
           <div>
-            <strong>emulator</strong>
-            <span>console</span>
+            <p class="eyebrow">LOCAL ENVIRONMENT</p>
+            <h1 id="page-title">Overview</h1>
+            <p class="page-description" id="page-description">Manage your emulated AWS resources from one place.</p>
           </div>
-        </div>
+          <button class="primary-button" id="create-button"><span>+</span> Create resource</button>
+        </section>
 
-        <nav class="main-nav" aria-label="Main navigation">
-          <button class="nav-item active" data-view="overview"><span class="nav-icon">◈</span>Overview</button>
-          <button class="nav-item" data-view="resources"><span class="nav-icon">▦</span>All resources</button>
-          <button class="nav-item" data-view="activity"><span class="nav-icon">◷</span>Activity</button>
-        </nav>
-
-        <div class="workspace-label service-label">SERVICES</div>
-        <nav class="service-nav" aria-label="Services">
-          <button class="service-item" data-service="S3"><img class="service-icon" src="assets/amazon-aws-S3-icon.svg" alt="" />Simple Storage</button>
-          <button class="service-item" data-service="DynamoDB"><img class="service-icon" src="assets/amazon-aws-DynamoDb-icon.svg" alt="" />DynamoDB</button>
-          <button class="service-item" data-service="SQS"><img class="service-icon" src="assets/amazon-aws-Sqs-icon.svg" alt="" />Queue Service</button>
-          <button class="service-item" data-service="SNS"><img class="service-icon" src="assets/amazon-aws-Sns-icon.svg" alt="" />Notifications</button>
-          <button class="service-item" data-service="EventBridge"><img class="service-icon" src="assets/amazon-aws-EventBridge-icon.svg" alt="" />EventBridge</button>
-          <button class="service-item" data-service="CloudWatchLogs"><img class="service-icon" src="assets/amazon-aws-CloudWatch-icon.svg" alt="" />CloudWatch Logs</button>
-          <button class="service-item" data-service="SecretsManager"><img class="service-icon" src="assets/amazon-aws-SecretsManager.svg" alt="" />Secrets Manager</button>
-          <button class="service-item" data-service="EC2"><img class="service-icon" src="assets/amazon-aws-Ec2-icon.svg" alt="" />EC2</button>
-          <button class="service-item" data-service="Lambda"><img class="service-icon" src="assets/amazon-aws-Lambda-icon.svg" alt="" />Lambda</button>
-        </nav>
-
-        <div class="sidebar-footer">
-          <div class="user-chip"><span class="avatar">P</span><span>Pedro</span><span class="more">•••</span></div>
-        </div>
-      </aside>
-
-      <main class="main-content">
-        <header class="topbar">
-          <div class="breadcrumbs"><span>local-default</span><span>/</span><strong id="breadcrumb-current">Overview</strong></div>
-          <div class="topbar-actions">
-            <div class="connection-pill"><span class="status-dot"></span><span id="connection-label">Connected</span></div>
-            <button class="icon-button" id="refresh-button" title="Refresh resources">↻</button>
-            <button class="help-button">?</button>
+        <section class="endpoint-card">
+          <div class="endpoint-icon">⌘</div>
+          <div class="endpoint-copy">
+            <span class="card-label">EMULATOR ENDPOINT</span>
+            <strong id="endpoint-value">https://127.0.0.1:9297</strong>
           </div>
-        </header>
+          <button class="secondary-button" id="endpoint-button">Configure endpoint</button>
+        </section>
 
-        <div class="page-content">
-          <section class="page-heading">
-            <div>
-              <p class="eyebrow">LOCAL ENVIRONMENT</p>
-              <h1 id="page-title">Overview</h1>
-              <p class="page-description" id="page-description">Manage your emulated AWS resources from one place.</p>
-            </div>
-            <button class="primary-button" id="create-button"><span>+</span> Create resource</button>
-          </section>
+        <div id="view-container"></div>
+      </div>
+    </main>
+  </div>
 
-          <section class="endpoint-card">
-            <div class="endpoint-icon">⌘</div>
-            <div class="endpoint-copy">
-              <span class="card-label">EMULATOR ENDPOINT</span>
-              <strong id="endpoint-value">https://127.0.0.1:9297</strong>
-            </div>
-            <button class="secondary-button" id="endpoint-button">Configure endpoint</button>
-          </section>
+  <div class="modal-backdrop hidden" id="modal-backdrop">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" id="modal-close" aria-label="Close">×</button>
+      <p class="eyebrow">NEW RESOURCE</p>
+      <h2 id="modal-title">Create resource</h2>
+      <p class="modal-description">Choose a service and give your local resource a name.</p>
+      <label class="field-label" for="resource-service">Service</label>
+      <select id="resource-service">
+        <option>S3</option>
+        <option>DynamoDB</option>
+        <option>SQS</option>
+        <option>SNS</option>
+        <option>EventBridge</option>
+        <option>CloudWatchLogs</option>
+        <option>SecretsManager</option>
+        <option>EC2</option>
+        <option>Lambda</option>
+      </select>
+      <label class="field-label" for="resource-name">Resource name</label>
+      <input id="resource-name" type="text" placeholder="my-local-resource" />
+      <div class="ec2-fields hidden" id="ec2-fields">
+        <label class="field-label" for="resource-image-id">AMI ID</label>
+        <input id="resource-image-id" type="text" placeholder="ami-12345678" />
+        <label class="field-label" for="resource-instance-type">Instance type</label>
+        <input id="resource-instance-type" type="text" value="t3.micro" placeholder="t3.micro" />
+      </div>
+      <p class="form-error" id="form-error"></p>
+      <button class="primary-button full-width" id="modal-create">Create resource</button>
+    </section>
+  </div>
 
-          <div id="view-container"></div>
-        </div>
-      </main>
-    </div>
+  <script src="backend/app.js"></script>
+</body>
 
-    <div class="modal-backdrop hidden" id="modal-backdrop">
-      <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <button class="modal-close" id="modal-close" aria-label="Close">×</button>
-        <p class="eyebrow">NEW RESOURCE</p>
-        <h2 id="modal-title">Create resource</h2>
-        <p class="modal-description">Choose a service and give your local resource a name.</p>
-        <label class="field-label" for="resource-service">Service</label>
-        <select id="resource-service">
-          <option>S3</option>
-          <option>DynamoDB</option>
-          <option>SQS</option>
-          <option>SNS</option>
-          <option>EventBridge</option>
-          <option>CloudWatchLogs</option>
-          <option>SecretsManager</option>
-          <option>EC2</option>
-          <option>Lambda</option>
-        </select>
-        <label class="field-label" for="resource-name">Resource name</label>
-        <input id="resource-name" type="text" placeholder="my-local-resource" />
-        <div class="ec2-fields hidden" id="ec2-fields">
-          <label class="field-label" for="resource-image-id">AMI ID</label>
-          <input id="resource-image-id" type="text" placeholder="ami-12345678" />
-          <label class="field-label" for="resource-instance-type">Instance type</label>
-          <input id="resource-instance-type" type="text" value="t3.micro" placeholder="t3.micro" />
-        </div>
-        <p class="form-error" id="form-error"></p>
-        <button class="primary-button full-width" id="modal-create">Create resource</button>
-      </section>
-    </div>
-
-    <script src="backend/app.js"></script>
-  </body>
 </html>
