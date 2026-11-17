@@ -686,6 +686,12 @@ button {
 .resource-table td {
   padding: 14px 16px;
   border-bottom: 1px solid #1d2730;
+  vertical-align: middle;
+}
+
+.resource-table th:first-child,
+.resource-table td:first-child {
+  text-align: left;
 }
 
 .resource-table td {
@@ -708,9 +714,15 @@ button {
 }
 
 .delete-button {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
   border: 0;
   background: transparent;
   color: var(--faint);
+  font-size: 20px;
+  line-height: 1;
 }
 
 .delete-button:hover {

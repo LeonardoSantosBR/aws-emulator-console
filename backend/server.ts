@@ -8,6 +8,7 @@ import { NodeHttpHandler } from "@smithy/node-http-handler";
 import {
   CreateTableCommand,
   DeleteTableCommand,
+  DescribeTableCommand,
   DynamoDBClient,
   ListTablesCommand,
 } from "@aws-sdk/client-dynamodb";
@@ -140,6 +141,8 @@ async function clients(endpoint: string): Promise<Record<string, any>> {
   };
 }
 
+const dynamoCreationDates = new Map<string, string>();
+
 const serviceCatalog: Record<string, ServiceDefinition> = {
   S3: {
     label: "Simple Storage", type: "Bucket", client: "S3",
@@ -150,7 +153,18 @@ const serviceCatalog: Record<string, ServiceDefinition> = {
   DynamoDB: {
     label: "DynamoDB", type: "Table", client: "DynamoDB",
     create: (client, body) => client.send(new CreateTableCommand({ TableName: body.name, AttributeDefinitions: [{ AttributeName: "id", AttributeType: "S" }], KeySchema: [{ AttributeName: "id", KeyType: "HASH" }], BillingMode: "PAY_PER_REQUEST" })),
-    list: (client) => client.send(new ListTablesCommand({})).then((result) => (result.TableNames || []).map((name) => ({ name }))),
+    list: async (client) => {
+      const result = await client.send(new ListTablesCommand({}));
+      return Promise.all((result.TableNames || []).map(async (name) => {
+        const table = await client.send(new DescribeTableCommand({ TableName: name }));
+        return {
+          name,
+          created: table.Table?.CreationDateTime
+            ? new Date(table.Table.CreationDateTime).toISOString()
+            : dynamoCreationDates.get(name) || "",
+        };
+      }));
+    },
     remove: (client, resource) => client.send(new DeleteTableCommand({ TableName: resource.name })),
   },
   SQS: {
@@ -236,6 +250,7 @@ async function createResource(endpoint: string, body: ResourceBody) {
   const definition = serviceCatalog[body.service];
   if (!definition?.create) throw new Error(`${body.service} creation is not available in the console form yet.`);
   await definition.create(serviceClients[definition.client], body);
+  if (body.service === "DynamoDB") dynamoCreationDates.set(body.name, new Date().toISOString());
   return (await listResources(endpoint)).find((resource) => resource.service === body.service && resource.name === body.name);
 }
 
