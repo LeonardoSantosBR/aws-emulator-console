@@ -705,6 +705,35 @@ button {
   font-weight: 500;
 }
 
+.resource-row { cursor: pointer; }
+.resource-row:hover { background: var(--panel-light); }
+.resource-detail { padding: 22px; }
+.detail-back { border: 0; background: transparent; color: var(--blue); padding: 0 0 20px; }
+.detail-properties { margin: 18px 0; border-top: 1px solid var(--border); }
+.detail-property { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--table-row-border); color: var(--muted); font-size: 12px; }
+.detail-property > span:first-child { min-width: 130px; }
+.detail-property code, .detail-message pre, #detail-result pre { color: var(--text); font: 12px "DM Mono", monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.detail-actions { display: grid; gap: 10px; max-width: 620px; margin-top: 20px; }
+.detail-actions input, .detail-actions textarea { width: 100%; border: 1px solid var(--border); border-radius: 5px; padding: 10px; color: var(--text); background: var(--input-bg); }
+.detail-actions input[type="file"] { padding: 8px; }
+.form-hint { color: var(--muted); font-size: 11px; }
+.detail-actions textarea { min-height: 90px; resize: vertical; }
+#detail-result { margin-top: 20px; }
+.detail-message { padding: 12px; border: 1px solid var(--border); border-radius: 6px; margin: 10px 0; }
+.operation-success { color: var(--green); }
+.objects-heading { display: flex; align-items: center; justify-content: space-between; margin: 22px 0 10px; }
+.objects-heading h3 { margin: 0; font-size: 14px; }
+.objects-heading > span, .object-size { color: var(--faint); font-size: 11px; }
+.object-list { border: 1px solid var(--border); border-radius: 7px; overflow: hidden; }
+.object-card + .object-card { border-top: 1px solid var(--border); }
+.object-row { display: flex; align-items: center; gap: 12px; min-height: 54px; padding: 8px 12px; }
+.object-name { min-width: 0; flex: 1; color: var(--text); font: 12px "DM Mono", monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.object-size { white-space: nowrap; }
+.object-row .secondary-button { padding: 7px 11px; font-size: 11px; }
+.object-preview { margin: 0 12px 12px; padding: 12px; border: 1px solid var(--border); border-radius: 5px; background: var(--panel-light); max-height: 320px; overflow: auto; }
+.object-preview pre { margin: 0; color: var(--text); font: 12px/1.6 "DM Mono", monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 600px) { .object-row { gap: 7px; padding: 8px; } .object-size { font-size: 10px; } .object-row .secondary-button { padding: 6px 8px; } }
+
 .status-tag {
   padding: 4px 7px;
   border-radius: 4px;

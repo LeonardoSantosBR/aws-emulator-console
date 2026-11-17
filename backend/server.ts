@@ -9,6 +9,9 @@ import {
   CreateTableCommand,
   DeleteTableCommand,
   DescribeTableCommand,
+  GetItemCommand,
+  PutItemCommand,
+  ScanCommand,
   DynamoDBClient,
   ListTablesCommand,
 } from "@aws-sdk/client-dynamodb";
@@ -21,12 +24,19 @@ import {
 import {
   CreateBucketCommand,
   DeleteBucketCommand,
+  GetObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  DeleteObjectCommand,
   ListBucketsCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
 import {
   CreateQueueCommand,
   DeleteQueueCommand,
+  ReceiveMessageCommand,
+  SendMessageCommand,
+  DeleteMessageCommand,
   ListQueuesCommand,
   SQSClient,
 } from "@aws-sdk/client-sqs";
@@ -46,12 +56,14 @@ import {
 import {
   CreateSecretCommand,
   DeleteSecretCommand,
+  GetSecretValueCommand,
   ListSecretsCommand,
   SecretsManagerClient,
 } from "@aws-sdk/client-secrets-manager";
 import {
   CreateTopicCommand,
   DeleteTopicCommand,
+  PublishCommand,
   ListTopicsCommand,
   SNSClient,
 } from "@aws-sdk/client-sns";
@@ -262,6 +274,50 @@ async function deleteResource(endpoint: string, body: ResourceBody) {
   await definition.remove(serviceClients[definition.client], body);
 }
 
+async function resourceAction(endpoint: string, body: ResourceBody) {
+  const client = (await clients(endpoint))[body.service as string];
+  const name = body.name as string;
+  switch (body.action) {
+    case "s3-list": {
+      const result = await client.send(new ListObjectsV2Command({ Bucket: name }));
+      return { items: (result.Contents || []).map((item: any) => ({ key: item.Key, size: item.Size, modified: item.LastModified?.toISOString() || "" })) };
+    }
+    case "s3-put":
+      await client.send(new PutObjectCommand({ Bucket: name, Key: body.key as string, Body: body.content as string })); return { ok: true };
+    case "s3-upload": {
+      const bytes = Buffer.from(body.content as string, "base64");
+      await client.send(new PutObjectCommand({ Bucket: name, Key: body.key as string, Body: bytes, ContentType: typeof body.contentType === "string" ? body.contentType : "application/octet-stream" }));
+      return { ok: true };
+    }
+    case "s3-get": {
+      const result = await client.send(new GetObjectCommand({ Bucket: name, Key: body.key as string })); return { content: await result.Body?.transformToString() || "" };
+    }
+    case "s3-delete":
+      await client.send(new DeleteObjectCommand({ Bucket: name, Key: body.key as string })); return { ok: true };
+    case "ddb-list": {
+      const result = await client.send(new ScanCommand({ TableName: name })); return { items: result.Items || [] };
+    }
+    case "ddb-put":
+      await client.send(new PutItemCommand({ TableName: name, Item: { id: { S: body.key as string }, value: { S: body.content as string } } })); return { ok: true };
+    case "ddb-get": {
+      const result = await client.send(new GetItemCommand({ TableName: name, Key: { id: { S: body.key as string } } })); return { item: result.Item || null };
+    }
+    case "sqs-receive": {
+      const result = await client.send(new ReceiveMessageCommand({ QueueUrl: body.url as string, MaxNumberOfMessages: 10, WaitTimeSeconds: 0 })); return { messages: result.Messages || [] };
+    }
+    case "sqs-send":
+      await client.send(new SendMessageCommand({ QueueUrl: body.url as string, MessageBody: body.content as string })); return { ok: true };
+    case "sqs-delete":
+      await client.send(new DeleteMessageCommand({ QueueUrl: body.url as string, ReceiptHandle: body.receiptHandle as string })); return { ok: true };
+    case "sns-publish":
+      await client.send(new PublishCommand({ TopicArn: body.arn as string, Message: body.content as string })); return { ok: true };
+    case "secret-read": {
+      const result = await client.send(new GetSecretValueCommand({ SecretId: name })); return { value: result.SecretString || "" };
+    }
+    default: throw new Error("Unsupported resource action.");
+  }
+}
+
 async function jsonBody(request: IncomingMessage): Promise<ResourceBody> {
   let raw = "";
   for await (const chunk of request) raw += chunk;
@@ -288,6 +344,11 @@ async function handleApi(request: IncomingMessage, response: ServerResponse, url
     if (request.method === "DELETE" && url.pathname === "/api/resources") {
       await deleteResource(endpoint, await jsonBody(request));
       return sendJson(response, 200, { ok: true });
+    }
+    if (request.method === "POST" && url.pathname === "/api/resource-action") {
+      const body = await jsonBody(request);
+      if (!body.service || !body.name || !body.action) throw new Error("Service, resource name, and action are required.");
+      return sendJson(response, 200, await resourceAction(endpoint, body));
     }
     return sendJson(response, 404, { error: "API route not found." });
   } catch (error) {
