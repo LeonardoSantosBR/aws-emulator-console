@@ -23,6 +23,7 @@ import {
 } from "@aws-sdk/client-lambda";
 import {
   CreateBucketCommand,
+  CopyObjectCommand,
   DeleteBucketCommand,
   GetObjectCommand,
   ListObjectsV2Command,
@@ -283,17 +284,42 @@ async function resourceAction(endpoint: string, body: ResourceBody) {
       return { items: (result.Contents || []).map((item: any) => ({ key: item.Key, size: item.Size, modified: item.LastModified?.toISOString() || "" })) };
     }
     case "s3-put":
-      await client.send(new PutObjectCommand({ Bucket: name, Key: body.key as string, Body: body.content as string })); return { ok: true };
+      await client.send(new PutObjectCommand({ Bucket: name, Key: body.key as string, Body: body.content as string, ContentType: "text/plain; charset=utf-8" })); return { ok: true };
     case "s3-upload": {
       const bytes = Buffer.from(body.content as string, "base64");
       await client.send(new PutObjectCommand({ Bucket: name, Key: body.key as string, Body: bytes, ContentType: typeof body.contentType === "string" ? body.contentType : "application/octet-stream" }));
       return { ok: true };
     }
     case "s3-get": {
-      const result = await client.send(new GetObjectCommand({ Bucket: name, Key: body.key as string })); return { content: await result.Body?.transformToString() || "" };
+      const result = await client.send(new GetObjectCommand({ Bucket: name, Key: body.key as string }));
+      const bytes = result.Body ? Buffer.from(await result.Body.transformToByteArray()) : Buffer.alloc(0);
+      return {
+        content: bytes.toString("base64"),
+        contentType: result.ContentType || "application/octet-stream",
+      };
     }
     case "s3-delete":
       await client.send(new DeleteObjectCommand({ Bucket: name, Key: body.key as string })); return { ok: true };
+    case "s3-rename-object": {
+      const newKey = body.newKey as string;
+      if (!newKey) throw new Error("The new object name is required.");
+      await client.send(new CopyObjectCommand({ Bucket: name, CopySource: `${name}/${encodeURIComponent(body.key as string)}`, Key: newKey }));
+      await client.send(new DeleteObjectCommand({ Bucket: name, Key: body.key as string }));
+      return { ok: true };
+    }
+    case "s3-rename-bucket": {
+      const newName = body.newName as string;
+      if (!newName) throw new Error("The new bucket name is required.");
+      await client.send(new CreateBucketCommand({ Bucket: newName }));
+      const objects = await client.send(new ListObjectsV2Command({ Bucket: name }));
+      for (const item of objects.Contents || []) {
+        if (!item.Key) continue;
+        await client.send(new CopyObjectCommand({ Bucket: newName, CopySource: `${name}/${encodeURIComponent(item.Key)}`, Key: item.Key }));
+        await client.send(new DeleteObjectCommand({ Bucket: name, Key: item.Key }));
+      }
+      await client.send(new DeleteBucketCommand({ Bucket: name }));
+      return { ok: true, name: newName };
+    }
     case "ddb-list": {
       const result = await client.send(new ScanCommand({ TableName: name })); return { items: result.Items || [] };
     }

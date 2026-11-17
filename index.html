@@ -223,6 +223,22 @@
       </section>
     </div>
 
+    <div class="dialog-backdrop hidden" id="dialog-backdrop">
+      <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+        <button class="modal-close" id="dialog-close" aria-label="Close">×</button>
+        <p class="eyebrow" id="dialog-eyebrow">CONFIRMATION</p>
+        <h2 id="dialog-title">Are you sure?</h2>
+        <p class="dialog-description" id="dialog-description"></p>
+        <input class="dialog-input hidden" id="dialog-input" />
+        <div class="dialog-actions">
+          <button class="secondary-button" id="dialog-cancel">Cancel</button>
+          <button class="primary-button" id="dialog-confirm">Confirm</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="toast-region" id="toast-region" aria-live="polite"></div>
+
     <script src="backend/app.js"></script>
   </body>
 </html>
